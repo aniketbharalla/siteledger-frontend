@@ -60,6 +60,13 @@ export function useStats({ sites = [], expenses = [], investors = [], payments =
     // Largest category
     const largestCat = Object.entries(byCategory).sort((a, b) => b[1] - a[1])[0]?.[0] || 'material';
 
+    // Per-investor profit breakdown (share % of net profit)
+    const investorProfits = filteredInvestors.map(inv => ({
+      ...inv,
+      profitShare: netProfit * ((inv.share || 0) / 100),
+      roi: inv.amount > 0 ? (netProfit * ((inv.share || 0) / 100) / inv.amount) * 100 : 0,
+    }));
+
     return {
       totalInvestment,
       totalExpenses,
@@ -75,6 +82,7 @@ export function useStats({ sites = [], expenses = [], investors = [], payments =
       filteredExpenses,
       filteredInvestors,
       filteredPayments,
+      investorProfits,
       largestCat,
     };
   }, [sites, expenses, investors, payments, selectedIds]);

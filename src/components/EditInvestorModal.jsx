@@ -8,7 +8,6 @@ export default function EditInvestorModal({ investor, sites = [], onClose, onSav
     name: investor.name || '',
     siteId,
     amount: investor.amount ?? '',
-    share: investor.share ?? '',
     date: investor.date ? investor.date.slice(0, 10) : '',
   });
   const [loading, setLoading] = useState(false);
@@ -21,7 +20,6 @@ export default function EditInvestorModal({ investor, sites = [], onClose, onSav
     if (!form.name.trim()) { setError('Investor name is required'); return; }
     if (!form.siteId) { setError('Please select a site'); return; }
     if (!form.amount || isNaN(Number(form.amount)) || Number(form.amount) < 0) { setError('Enter a valid amount'); return; }
-    if (form.share === '' || isNaN(Number(form.share))) { setError('Enter a valid share %'); return; }
     setError('');
     setLoading(true);
     try {
@@ -29,7 +27,6 @@ export default function EditInvestorModal({ investor, sites = [], onClose, onSav
         name: form.name.trim(),
         siteId: form.siteId,
         amount: Number(form.amount),
-        share: Number(form.share),
         date: form.date,
       });
       onSaved?.();
@@ -83,8 +80,21 @@ export default function EditInvestorModal({ investor, sites = [], onClose, onSav
               <input className="input-dark" type="number" min="0" value={form.amount} onChange={e => set('amount', e.target.value)} />
             </div>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Share %</label>
-              <input className="input-dark" type="number" min="0" max="100" step="0.1" value={form.share} onChange={e => set('share', e.target.value)} />
+              <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Share % (auto)</label>
+              <div style={{
+                background: 'rgba(0,117,255,0.08)',
+                border: '1px solid rgba(0,117,255,0.2)',
+                borderRadius: 10,
+                padding: '8px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+                <span className="num" style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent-blue)' }}>
+                  {(investor.share || 0).toFixed(1)}%
+                </span>
+                <span style={{ fontSize: 10, color: 'var(--ink-3)' }}>recalculated on save</span>
+              </div>
             </div>
           </div>
 

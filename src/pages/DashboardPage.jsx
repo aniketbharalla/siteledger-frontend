@@ -3,6 +3,7 @@ import KPIStrip from '../components/KPIStrip';
 import Donut from '../components/Donut';
 import ExpenseTable from '../components/ExpenseTable';
 import InvestorsPanel from '../components/InvestorsPanel';
+import InvestorProfitPanel from '../components/InvestorProfitPanel';
 import PaymentsPanel from '../components/PaymentsPanel';
 import SiteHealth from '../components/SiteHealth';
 
@@ -17,7 +18,7 @@ export default function DashboardPage({
   const {
     totalInvestment, totalExpenses, totalPayments, netProfit,
     profitPct, byCategory, siteMetrics,
-    recentExpenses, filteredInvestors, filteredPayments,
+    recentExpenses, filteredInvestors, filteredPayments, investorProfits,
   } = stats;
 
   return (
@@ -61,6 +62,9 @@ export default function DashboardPage({
           <PaymentsPanel payments={filteredPayments} />
         </div>
       )}
+
+      {/* Investor profit breakdown */}
+      <InvestorProfitPanel investorProfits={investorProfits} netProfit={netProfit} />
 
       {/* Expense table */}
       <ExpenseTable expenses={recentExpenses} compact={true} />
