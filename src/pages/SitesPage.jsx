@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { fmtINR } from '../utils/format';
-import { IconExternalLink } from '../components/icons';
+import { IconExternalLink, IconEdit, IconTrash } from '../components/icons';
+import { deleteSite } from '../api';
+import EditSiteModal from '../components/EditSiteModal';
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 
 const SITE_COLORS = [
   'var(--grad-primary)',
@@ -11,7 +15,7 @@ const SITE_COLORS = [
   'linear-gradient(135deg,#FFB547 0%,#01B574 100%)',
 ];
 
-function SiteCard({ site, colorIdx, onToggle, isSelected }) {
+function SiteCard({ site, colorIdx, onToggle, isSelected, onEdit, onDelete }) {
   const burnColor = site.burnRate > 90 ? '#E31A1A' : site.burnRate > 70 ? '#FFB547' : '#01B574';
 
   return (
@@ -33,16 +37,10 @@ function SiteCard({ site, colorIdx, onToggle, isSelected }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
         <div
           style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
+            width: 44, height: 44, borderRadius: 12,
             background: SITE_COLORS[colorIdx % SITE_COLORS.length],
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 12,
-            fontWeight: 800,
-            flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 12, fontWeight: 800, flexShrink: 0,
           }}
         >
           {site.code?.slice(0, 2)}
@@ -84,21 +82,30 @@ function SiteCard({ site, colorIdx, onToggle, isSelected }) {
           </span>
         </div>
         <div className="progress-bar">
-          <div
-            className="progress-fill"
-            style={{ width: `${Math.min(100, site.burnRate)}%`, background: burnColor }}
-          />
+          <div className="progress-fill" style={{ width: `${Math.min(100, site.burnRate)}%`, background: burnColor }} />
         </div>
       </div>
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: 8 }}>
+        <button className="btn-ghost" style={{ flex: 1, justifyContent: 'center', padding: '8px' }} onClick={onToggle}>
+          {isSelected ? 'Exclude' : 'Include'}
+        </button>
         <button
           className="btn-ghost"
-          style={{ flex: 1, justifyContent: 'center', padding: '8px' }}
-          onClick={onToggle}
+          style={{ padding: '8px 10px', color: 'var(--accent-blue)' }}
+          onClick={onEdit}
+          title="Edit site"
         >
-          {isSelected ? 'Exclude' : 'Include'}
+          <IconEdit size={14} />
+        </button>
+        <button
+          className="btn-ghost"
+          style={{ padding: '8px 10px', color: '#E31A1A' }}
+          onClick={onDelete}
+          title="Delete site"
+        >
+          <IconTrash size={14} />
         </button>
         <button className="btn-primary" style={{ flex: 1, justifyContent: 'center', padding: '8px' }}>
           <IconExternalLink size={12} />
@@ -111,6 +118,9 @@ function SiteCard({ site, colorIdx, onToggle, isSelected }) {
 
 export default function SitesPage({ stats, selectedIds, setSelectedIds }) {
   const { siteMetrics } = stats;
+  const qc = useQueryClient();
+  const [editSite, setEditSite] = useState(null);
+  const [deleteSiteTarget, setDeleteSiteTarget] = useState(null);
 
   function toggle(id) {
     setSelectedIds(prev => {
@@ -125,18 +135,15 @@ export default function SitesPage({ stats, selectedIds, setSelectedIds }) {
 
   const isSelected = (id) => !selectedIds || selectedIds.length === 0 || selectedIds.includes(id);
 
+  function handleSaved() {
+    qc.invalidateQueries({ queryKey: ['sites'] });
+  }
+
   return (
     <div>
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <div>
-          <div style={{ fontSize: 11, color: 'var(--ink-3)', marginBottom: 2 }}>{siteMetrics.length} sites total</div>
-        </div>
-        <button
-          className="btn-ghost"
-          style={{ fontSize: 12 }}
-          onClick={() => setSelectedIds([])}
-        >
+        <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>{siteMetrics.length} sites total</div>
+        <button className="btn-ghost" style={{ fontSize: 12 }} onClick={() => setSelectedIds([])}>
           Show All
         </button>
       </div>
@@ -146,13 +153,7 @@ export default function SitesPage({ stats, selectedIds, setSelectedIds }) {
           No sites found. Add some sites first.
         </div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: 16,
-          }}
-        >
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
           {siteMetrics.map((site, i) => (
             <SiteCard
               key={site._id}
@@ -160,9 +161,28 @@ export default function SitesPage({ stats, selectedIds, setSelectedIds }) {
               colorIdx={i}
               onToggle={() => toggle(site._id)}
               isSelected={isSelected(site._id)}
+              onEdit={() => setEditSite(site)}
+              onDelete={() => setDeleteSiteTarget(site)}
             />
           ))}
         </div>
+      )}
+
+      {editSite && (
+        <EditSiteModal
+          site={editSite}
+          onClose={() => setEditSite(null)}
+          onSaved={handleSaved}
+        />
+      )}
+
+      {deleteSiteTarget && (
+        <ConfirmDeleteModal
+          title="Delete Site"
+          message={`Are you sure you want to delete "${deleteSiteTarget.name}"? This cannot be undone.`}
+          onConfirm={() => deleteSite(deleteSiteTarget._id).then(handleSaved)}
+          onClose={() => setDeleteSiteTarget(null)}
+        />
       )}
     </div>
   );

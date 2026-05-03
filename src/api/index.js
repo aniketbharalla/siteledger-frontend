@@ -42,21 +42,29 @@ export const registerUser = (name, email, password) =>
 
 /* ── Sites ─────────────────────────────────────────── */
 export const getSites = () => api.get('/sites').then((r) => r.data.data);
+export const updateSite = (id, body) => api.put(`/sites/${id}`, body).then((r) => r.data.data);
+export const deleteSite = (id) => api.delete(`/sites/${id}`).then((r) => r.data);
 
 /* ── Investors ──────────────────────────────────────── */
 export const getInvestors = (siteId) =>
   api.get('/investors', { params: siteId ? { siteId } : {} }).then((r) => r.data.data);
+export const createInvestor = (body) => api.post('/investors', body).then((r) => r.data.data);
+export const updateInvestor = (id, body) => api.put(`/investors/${id}`, body).then((r) => r.data.data);
+export const deleteInvestor = (id) => api.delete(`/investors/${id}`).then((r) => r.data);
 
 /* ── Expenses ───────────────────────────────────────── */
 export const getExpenses = (params = {}) =>
   api.get('/expenses', { params }).then((r) => r.data.data);
-
-export const createExpense = (body) =>
-  api.post('/expenses', body).then((r) => r.data.data);
+export const createExpense = (body) => api.post('/expenses', body).then((r) => r.data.data);
+export const updateExpense = (id, body) => api.put(`/expenses/${id}`, body).then((r) => r.data.data);
+export const deleteExpense = (id) => api.delete(`/expenses/${id}`).then((r) => r.data);
 
 /* ── Payments ───────────────────────────────────────── */
 export const getPayments = (params = {}) =>
   api.get('/payments', { params }).then((r) => r.data.data);
+export const createPayment = (body) => api.post('/payments', body).then((r) => r.data.data);
+export const updatePayment = (id, body) => api.put(`/payments/${id}`, body).then((r) => r.data.data);
+export const deletePayment = (id) => api.delete(`/payments/${id}`).then((r) => r.data);
 
 /* ── Stats (optional endpoint) ──────────────────────── */
 export const getStats = () =>

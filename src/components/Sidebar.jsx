@@ -107,44 +107,7 @@ export default function Sidebar({ page, setPage, mobile = false, onClose }) {
       </nav>
 
       {/* Help card */}
-      <div
-        style={{
-          background: 'var(--grad-primary)',
-          borderRadius: 16,
-          padding: '16px 14px',
-          marginTop: 16,
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute', top: -20, right: -20,
-            width: 80, height: 80,
-            background: 'rgba(255,255,255,0.1)',
-            borderRadius: '50%',
-          }}
-        />
-        <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>Need Help?</div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5, marginBottom: 10 }}>
-          Check our docs for guides and FAQs
-        </div>
-        <a
-          href="#"
-          style={{
-            display: 'inline-block',
-            background: '#fff',
-            color: '#0075FF',
-            fontSize: 11,
-            fontWeight: 700,
-            padding: '5px 12px',
-            borderRadius: 8,
-            textDecoration: 'none',
-          }}
-        >
-          View Docs
-        </a>
-      </div>
+   
 
       {/* User avatar */}
       <div

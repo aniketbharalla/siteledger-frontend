@@ -247,7 +247,7 @@ export default function App() {
       case 'investors':
         return <InvestorsPage stats={stats} sites={sites} />;
       case 'expenses':
-        return <ExpensesPage stats={stats} />;
+        return <ExpensesPage stats={stats} sites={sites} />;
       case 'payments':
         return <PaymentsPage stats={stats} sites={sites} />;
       case 'reports':
