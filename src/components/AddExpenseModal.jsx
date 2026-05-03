@@ -61,20 +61,22 @@ export default function AddExpenseModal({ sites = [], onClose, onSaved }) {
         style={{
           width: '100%',
           maxWidth: 480,
+          maxHeight: '90vh',
+          overflowY: 'auto',
           padding: '28px',
           boxShadow: '0 30px 80px rgba(0,0,0,0.7)',
           position: 'relative',
         }}
       >
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, position: 'sticky', top: 0, background: 'var(--bg-2)', zIndex: 1, paddingBottom: 16, borderBottom: '1px solid var(--line)' }}>
           <div>
             <div style={{ fontSize: 16, fontWeight: 800 }}>Log Expense</div>
             <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>Add a new expense entry</div>
           </div>
           <button
             onClick={onClose}
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--line)', borderRadius: 8, color: 'var(--ink-3)', cursor: 'pointer', padding: '6px', display: 'flex' }}
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--line)', borderRadius: 8, color: 'var(--ink-3)', cursor: 'pointer', padding: '6px', display: 'flex', flexShrink: 0 }}
           >
             <IconX size={16} />
           </button>

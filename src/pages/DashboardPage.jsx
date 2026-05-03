@@ -21,7 +21,7 @@ export default function DashboardPage({
   } = stats;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 12 : 20 }}>
       {/* KPIs */}
       <KPIStrip
         totalInvestment={totalInvestment}
@@ -32,19 +32,35 @@ export default function DashboardPage({
       />
 
       {/* Middle row: Donut + Investors + Payments */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: 16 }}>
-        <Donut
-          byCategory={byCategory}
-          totalInvestment={totalInvestment}
-          totalExpenses={totalExpenses}
-          totalPayments={totalPayments}
-          netProfit={netProfit}
-          view={donutView}
-          setView={setDonutView}
-        />
-        <InvestorsPanel investors={filteredInvestors.slice(0, 5)} />
-        <PaymentsPanel payments={filteredPayments} />
-      </div>
+      {isMobile ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <Donut
+            byCategory={byCategory}
+            totalInvestment={totalInvestment}
+            totalExpenses={totalExpenses}
+            totalPayments={totalPayments}
+            netProfit={netProfit}
+            view={donutView}
+            setView={setDonutView}
+          />
+          <InvestorsPanel investors={filteredInvestors.slice(0, 5)} />
+          <PaymentsPanel payments={filteredPayments} />
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+          <Donut
+            byCategory={byCategory}
+            totalInvestment={totalInvestment}
+            totalExpenses={totalExpenses}
+            totalPayments={totalPayments}
+            netProfit={netProfit}
+            view={donutView}
+            setView={setDonutView}
+          />
+          <InvestorsPanel investors={filteredInvestors.slice(0, 5)} />
+          <PaymentsPanel payments={filteredPayments} />
+        </div>
+      )}
 
       {/* Expense table */}
       <ExpenseTable expenses={recentExpenses} compact={true} />

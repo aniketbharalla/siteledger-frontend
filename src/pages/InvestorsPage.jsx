@@ -4,6 +4,7 @@ import { fmtINR, fmtDate, initials } from '../utils/format';
 import { IconSearch, IconDownload, IconSort, IconEdit, IconTrash } from '../components/icons';
 import { deleteInvestor } from '../api';
 import EditInvestorModal from '../components/EditInvestorModal';
+import AddInvestorModal from '../components/AddInvestorModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 
 const INVESTOR_COLORS = ['#0075FF', '#FF0080', '#01B574', '#FFB547', '#582CFF', '#01B5EC'];
@@ -30,6 +31,7 @@ export default function InvestorsPage({ stats, sites = [] }) {
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState({ key: 'amount', dir: 'desc' });
+  const [showAdd, setShowAdd] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
@@ -72,7 +74,8 @@ export default function InvestorsPage({ stats, sites = [] }) {
   }
 
   return (
-    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+    <>
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
       {/* Header */}
       <div style={{ padding: '18px 20px 14px', borderBottom: '1px solid var(--line)', display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
         <div>
@@ -94,6 +97,9 @@ export default function InvestorsPage({ stats, sites = [] }) {
         </div>
         <button className="btn-ghost" style={{ padding: '7px 10px' }} onClick={() => exportCSV(filtered)}>
           <IconDownload size={13} /> CSV
+        </button>
+        <button className="btn-primary" style={{ padding: '7px 12px', fontSize: 12 }} onClick={() => setShowAdd(true)}>
+          + Add Investor
         </button>
       </div>
 
@@ -187,6 +193,16 @@ export default function InvestorsPage({ stats, sites = [] }) {
         <span>Total: <span className="num" style={{ fontWeight: 700, color: 'var(--accent-blue)' }}>{fmtINR(total)}</span></span>
       </div>
 
+      </div>
+
+      {showAdd && (
+        <AddInvestorModal
+          sites={sites}
+          onClose={() => setShowAdd(false)}
+          onSaved={handleSaved}
+        />
+      )}
+
       {editTarget && (
         <EditInvestorModal
           investor={editTarget}
@@ -204,6 +220,6 @@ export default function InvestorsPage({ stats, sites = [] }) {
           onClose={() => setDeleteTarget(null)}
         />
       )}
-    </div>
+    </>
   );
 }

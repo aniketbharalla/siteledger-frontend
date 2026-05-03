@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { updateInvestor } from '../api';
+import { createInvestor } from '../api';
 import { IconX, IconCheck } from './icons';
 
-export default function EditInvestorModal({ investor, sites = [], onClose, onSaved }) {
-  const siteId = investor.siteId?._id || investor.siteId || '';
+export default function AddInvestorModal({ sites = [], onClose, onSaved }) {
   const [form, setForm] = useState({
-    name: investor.name || '',
-    siteId,
-    amount: investor.amount ?? '',
-    share: investor.share ?? '',
-    date: investor.date ? investor.date.slice(0, 10) : '',
+    name: '',
+    siteId: sites[0]?._id || '',
+    amount: '',
+    share: '',
+    date: new Date().toISOString().slice(0, 10),
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,12 +19,16 @@ export default function EditInvestorModal({ investor, sites = [], onClose, onSav
     e.preventDefault();
     if (!form.name.trim()) { setError('Investor name is required'); return; }
     if (!form.siteId) { setError('Please select a site'); return; }
-    if (!form.amount || isNaN(Number(form.amount)) || Number(form.amount) < 0) { setError('Enter a valid amount'); return; }
-    if (form.share === '' || isNaN(Number(form.share))) { setError('Enter a valid share %'); return; }
+    if (!form.amount || isNaN(Number(form.amount)) || Number(form.amount) < 0) {
+      setError('Enter a valid amount'); return;
+    }
+    if (form.share === '' || isNaN(Number(form.share))) {
+      setError('Enter a valid share %'); return;
+    }
     setError('');
     setLoading(true);
     try {
-      await updateInvestor(investor._id, {
+      await createInvestor({
         name: form.name.trim(),
         siteId: form.siteId,
         amount: Number(form.amount),
@@ -35,7 +38,7 @@ export default function EditInvestorModal({ investor, sites = [], onClose, onSav
       onSaved?.();
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to update investor');
+      setError(err.message || 'Failed to add investor');
     } finally {
       setLoading(false);
     }
@@ -43,11 +46,31 @@ export default function EditInvestorModal({ investor, sites = [], onClose, onSav
 
   return (
     <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="card" style={{ width: '100%', maxWidth: 460, maxHeight: '90vh', overflowY: 'auto', padding: '28px', boxShadow: '0 30px 80px rgba(0,0,0,0.7)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, position: 'sticky', top: 0, background: 'var(--bg-2)', zIndex: 1, paddingBottom: 16, borderBottom: '1px solid var(--line)' }}>
+      <div className="card" style={{
+        width: '100%',
+        maxWidth: 460,
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        padding: '28px',
+        boxShadow: '0 30px 80px rgba(0,0,0,0.7)',
+        position: 'relative',
+      }}>
+        {/* Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 24,
+          position: 'sticky',
+          top: 0,
+          background: 'var(--bg-2)',
+          zIndex: 1,
+          paddingBottom: 16,
+          borderBottom: '1px solid var(--line)',
+        }}>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 800 }}>Edit Investor</div>
-            <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>{investor.name}</div>
+            <div style={{ fontSize: 16, fontWeight: 800 }}>Add Investor</div>
+            <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>Record a new investor entry</div>
           </div>
           <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--line)', borderRadius: 8, color: 'var(--ink-3)', cursor: 'pointer', padding: '6px', display: 'flex', flexShrink: 0 }}>
             <IconX size={16} />
@@ -63,7 +86,7 @@ export default function EditInvestorModal({ investor, sites = [], onClose, onSav
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
             <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Investor Name</label>
-            <input className="input-dark" value={form.name} onChange={e => set('name', e.target.value)} />
+            <input className="input-dark" placeholder="e.g. Rajesh Kumar" value={form.name} onChange={e => set('name', e.target.value)} />
           </div>
 
           <div>
@@ -80,11 +103,11 @@ export default function EditInvestorModal({ investor, sites = [], onClose, onSav
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
               <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Amount (₹)</label>
-              <input className="input-dark" type="number" min="0" value={form.amount} onChange={e => set('amount', e.target.value)} />
+              <input className="input-dark" type="number" min="0" placeholder="0" value={form.amount} onChange={e => set('amount', e.target.value)} />
             </div>
             <div>
               <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Share %</label>
-              <input className="input-dark" type="number" min="0" max="100" step="0.1" value={form.share} onChange={e => set('share', e.target.value)} />
+              <input className="input-dark" type="number" min="0" max="100" step="0.1" placeholder="0.0" value={form.share} onChange={e => set('share', e.target.value)} />
             </div>
           </div>
 
@@ -97,7 +120,7 @@ export default function EditInvestorModal({ investor, sites = [], onClose, onSav
             <button type="button" className="btn-ghost" onClick={onClose} style={{ flex: 1, justifyContent: 'center', padding: '10px' }}>Cancel</button>
             <button type="submit" className="btn-primary" disabled={loading} style={{ flex: 2, justifyContent: 'center', padding: '10px', opacity: loading ? 0.6 : 1 }}>
               <IconCheck size={14} />
-              {loading ? 'Saving...' : 'Save changes'}
+              {loading ? 'Saving...' : 'Add Investor'}
             </button>
           </div>
         </form>

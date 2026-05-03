@@ -94,9 +94,9 @@ export default function Donut({ byCategory, totalInvestment, totalExpenses, tota
       </div>
 
       {/* Chart + legend */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
         {/* SVG donut */}
-        <div style={{ position: 'relative', flexShrink: 0 }}>
+        <div style={{ position: 'relative', flexShrink: 0, margin: '0 auto' }}>
           <svg width={160} height={160} viewBox="0 0 160 160">
             {/* Background ring */}
             <circle

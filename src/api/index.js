@@ -26,6 +26,7 @@ api.interceptors.response.use(
     }
     const msg =
       err?.response?.data?.message ||
+      err?.response?.data?.errors?.[0]?.msg ||
       err?.response?.data?.error ||
       err?.message ||
       'Request failed';
@@ -42,6 +43,7 @@ export const registerUser = (name, email, password) =>
 
 /* ── Sites ─────────────────────────────────────────── */
 export const getSites = () => api.get('/sites').then((r) => r.data.data);
+export const createSite = (body) => api.post('/sites', body).then((r) => r.data.data);
 export const updateSite = (id, body) => api.put(`/sites/${id}`, body).then((r) => r.data.data);
 export const deleteSite = (id) => api.delete(`/sites/${id}`).then((r) => r.data);
 

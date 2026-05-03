@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { fmtINR } from '../utils/format';
 import { IconExternalLink, IconEdit, IconTrash } from '../components/icons';
 import { deleteSite } from '../api';
+import AddSiteModal from '../components/AddSiteModal';
 import EditSiteModal from '../components/EditSiteModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 
@@ -119,6 +120,7 @@ function SiteCard({ site, colorIdx, onToggle, isSelected, onEdit, onDelete }) {
 export default function SitesPage({ stats, selectedIds, setSelectedIds }) {
   const { siteMetrics } = stats;
   const qc = useQueryClient();
+  const [showAdd, setShowAdd] = useState(false);
   const [editSite, setEditSite] = useState(null);
   const [deleteSiteTarget, setDeleteSiteTarget] = useState(null);
 
@@ -143,9 +145,14 @@ export default function SitesPage({ stats, selectedIds, setSelectedIds }) {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>{siteMetrics.length} sites total</div>
-        <button className="btn-ghost" style={{ fontSize: 12 }} onClick={() => setSelectedIds([])}>
-          Show All
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn-ghost" style={{ fontSize: 12 }} onClick={() => setSelectedIds([])}>
+            Show All
+          </button>
+          <button className="btn-primary" style={{ padding: '7px 12px', fontSize: 12 }} onClick={() => setShowAdd(true)}>
+            + Add Site
+          </button>
+        </div>
       </div>
 
       {siteMetrics.length === 0 ? (
@@ -166,6 +173,13 @@ export default function SitesPage({ stats, selectedIds, setSelectedIds }) {
             />
           ))}
         </div>
+      )}
+
+      {showAdd && (
+        <AddSiteModal
+          onClose={() => setShowAdd(false)}
+          onSaved={handleSaved}
+        />
       )}
 
       {editSite && (

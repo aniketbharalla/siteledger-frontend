@@ -268,6 +268,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
+  overflow-y: auto;
 }
 
 /* Drawer */
@@ -307,4 +308,23 @@
 
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .bottom-nav { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* ── Responsive dashboard ─────────────────────────────── */
+@media (max-width: 480px) {
+  /* KPI cards: tighter on very small screens */
+  .kpi-grid {
+    gap: 8px !important;
+  }
+
+  /* Reduce card padding on mobile */
+  .card {
+    border-radius: 14px;
+  }
+
+  /* Donut chart: center and shrink */
+  .donut-row {
+    flex-direction: column;
+    align-items: center;
+  }
 }

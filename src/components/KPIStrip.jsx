@@ -8,54 +8,43 @@ const KPI_CONFIG = [
     label: 'Total Investment',
     Icon: IconPeople,
     grad: 'var(--grad-primary)',
-    deltaMeta: '+12.5%',
-    deltaUp: true,
   },
   {
     key: 'expenses',
     label: 'Total Expenses',
     Icon: IconReceipt,
     grad: 'var(--grad-pink)',
-    deltaMeta: '+8.1%',
-    deltaUp: false,
   },
   {
     key: 'receipts',
     label: 'Client Receipts',
     Icon: IconCash,
     grad: 'var(--grad-green)',
-    deltaMeta: '+18.7%',
-    deltaUp: true,
   },
   {
     key: 'profit',
     label: 'Net Profit',
     Icon: IconTrend,
     grad: 'var(--grad-amber)',
-    deltaMeta: null,
-    deltaUp: true,
   },
 ];
 
-function KPICard({ config, value, profitPct }) {
-  const { label, Icon, grad, deltaMeta, deltaUp, key } = config;
+function KPICard({ config, value, profitPct, totalPayments }) {
+  const { label, Icon, grad, key } = config;
 
-  let delta = deltaMeta;
-  let up = deltaUp;
-  if (key === 'profit') {
-    delta = profitPct != null ? Math.abs(profitPct).toFixed(1) + '%' : null;
-    up = (profitPct || 0) >= 0;
-  }
+  // Only show profit % badge when there are actual payments
+  const showDelta = key === 'profit' && totalPayments > 0;
+  const delta = showDelta ? Math.abs(profitPct).toFixed(1) + '%' : null;
+  const up = (profitPct || 0) >= 0;
 
   return (
     <div
       className="card"
       style={{
-        padding: '20px',
+        padding: '16px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 14,
-        flex: 1,
+        gap: 12,
         minWidth: 0,
         transition: 'transform 0.15s',
         cursor: 'default',
@@ -66,9 +55,9 @@ function KPICard({ config, value, profitPct }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div
           className="icon-tile"
-          style={{ background: grad, width: 44, height: 44, borderRadius: 12 }}
+          style={{ background: grad, width: 40, height: 40, borderRadius: 11, flexShrink: 0 }}
         >
-          <Icon size={20} />
+          <Icon size={18} />
         </div>
         {delta && (
           <div
@@ -76,25 +65,26 @@ function KPICard({ config, value, profitPct }) {
               display: 'flex',
               alignItems: 'center',
               gap: 3,
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: 700,
               color: up ? 'var(--accent-green)' : 'var(--accent-red)',
               background: up ? 'rgba(1,181,116,0.12)' : 'rgba(227,26,26,0.12)',
               borderRadius: 8,
-              padding: '3px 8px',
+              padding: '3px 7px',
+              whiteSpace: 'nowrap',
             }}
           >
-            {up ? <IconArrowUp size={11} /> : <IconArrowDown size={11} />}
+            {up ? <IconArrowUp size={10} /> : <IconArrowDown size={10} />}
             {delta}
           </div>
         )}
       </div>
 
       <div>
-        <div className="num" style={{ fontSize: 22, fontWeight: 700, lineHeight: 1, marginBottom: 4 }}>
+        <div className="num" style={{ fontSize: 18, fontWeight: 700, lineHeight: 1, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {fmtINR(value)}
         </div>
-        <div style={{ fontSize: 12, color: 'var(--ink-3)', fontWeight: 500 }}>{label}</div>
+        <div style={{ fontSize: 11, color: 'var(--ink-3)', fontWeight: 500 }}>{label}</div>
       </div>
     </div>
   );
@@ -109,10 +99,25 @@ export default function KPIStrip({ totalInvestment, totalExpenses, totalPayments
   };
 
   return (
-    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-      {KPI_CONFIG.map(cfg => (
-        <KPICard key={cfg.key} config={cfg} value={values[cfg.key]} profitPct={profitPct} />
-      ))}
-    </div>
+    <>
+      <style>{`
+        .kpi-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+        }
+        @media (max-width: 700px) {
+          .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+          }
+        }
+      `}</style>
+      <div className="kpi-grid">
+        {KPI_CONFIG.map(cfg => (
+          <KPICard key={cfg.key} config={cfg} value={values[cfg.key]} profitPct={profitPct} totalPayments={totalPayments} />
+        ))}
+      </div>
+    </>
   );
 }

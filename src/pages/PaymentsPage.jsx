@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { fmtINR, fmtDate } from '../utils/format';
 import { IconSearch, IconDownload, IconSort, IconEdit, IconTrash } from '../components/icons';
 import { deletePayment } from '../api';
+import AddPaymentModal from '../components/AddPaymentModal';
 import EditPaymentModal from '../components/EditPaymentModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 
@@ -29,6 +30,7 @@ export default function PaymentsPage({ stats, sites = [] }) {
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState({ key: 'date', dir: 'desc' });
+  const [showAdd, setShowAdd] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
@@ -75,6 +77,7 @@ export default function PaymentsPage({ stats, sites = [] }) {
   }
 
   return (
+    <>
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
       {/* Header */}
       <div style={{ padding: '18px 20px 14px', borderBottom: '1px solid var(--line)', display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
@@ -91,6 +94,9 @@ export default function PaymentsPage({ stats, sites = [] }) {
         </div>
         <button className="btn-ghost" style={{ padding: '7px 10px' }} onClick={() => exportCSV(filtered)}>
           <IconDownload size={13} /> CSV
+        </button>
+        <button className="btn-primary" style={{ padding: '7px 12px', fontSize: 12 }} onClick={() => setShowAdd(true)}>
+          + Add Payment
         </button>
       </div>
 
@@ -165,6 +171,16 @@ export default function PaymentsPage({ stats, sites = [] }) {
         <span>Total received: <span className="num" style={{ fontWeight: 700, color: 'var(--accent-green)' }}>{fmtINR(total)}</span></span>
       </div>
 
+      </div>
+
+      {showAdd && (
+        <AddPaymentModal
+          sites={sites}
+          onClose={() => setShowAdd(false)}
+          onSaved={handleSaved}
+        />
+      )}
+
       {editTarget && (
         <EditPaymentModal
           payment={editTarget}
@@ -182,6 +198,6 @@ export default function PaymentsPage({ stats, sites = [] }) {
           onClose={() => setDeleteTarget(null)}
         />
       )}
-    </div>
+    </>
   );
 }
