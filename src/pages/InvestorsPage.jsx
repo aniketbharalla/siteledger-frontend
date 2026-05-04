@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { fmtINR, fmtDate, initials } from '../utils/format';
 import { IconSearch, IconDownload, IconSort, IconEdit, IconTrash } from '../components/icons';
@@ -26,7 +26,7 @@ function exportCSV(rows) {
   a.download = 'investors.csv'; a.click();
 }
 
-export default function InvestorsPage({ stats, sites = [] }) {
+export default function InvestorsPage({ stats, sites = [], mobileAddTick = 0 }) {
   const { filteredInvestors } = stats;
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
@@ -34,6 +34,10 @@ export default function InvestorsPage({ stats, sites = [] }) {
   const [showAdd, setShowAdd] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+
+  useEffect(() => {
+    if (mobileAddTick > 0) setShowAdd(true);
+  }, [mobileAddTick]);
 
   const siteMap = useMemo(() => {
     const m = {};

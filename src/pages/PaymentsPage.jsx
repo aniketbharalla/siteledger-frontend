@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { fmtINR, fmtDate } from '../utils/format';
 import { IconSearch, IconDownload, IconSort, IconEdit, IconTrash } from '../components/icons';
@@ -25,7 +25,7 @@ const COLS = [
   { key: 'amount',     label: 'Amount', align: 'right' },
 ];
 
-export default function PaymentsPage({ stats, sites = [] }) {
+export default function PaymentsPage({ stats, sites = [], mobileAddTick = 0 }) {
   const { filteredPayments } = stats;
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
@@ -33,6 +33,10 @@ export default function PaymentsPage({ stats, sites = [] }) {
   const [showAdd, setShowAdd] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+
+  useEffect(() => {
+    if (mobileAddTick > 0) setShowAdd(true);
+  }, [mobileAddTick]);
 
   const siteMap = useMemo(() => {
     const m = {};

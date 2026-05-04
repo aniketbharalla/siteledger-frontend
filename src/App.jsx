@@ -23,7 +23,7 @@ import { getSites, getInvestors, getExpenses, getPayments } from './api';
 import {
   IconDashboard, IconSites, IconInvestors,
   IconExpenses, IconPayments, IconReports,
-  IconSettings,
+  IconSettings, IconPeople,
 } from './components/icons';
 
 // ── Local storage helpers ──────────────────────────────
@@ -107,17 +107,21 @@ function ErrorState({ error, refetch }) {
 
 // ── Mobile bottom tab bar ───────────────────────────────
 const BOTTOM_TABS = [
-  { id: 'dashboard', label: 'Home',    Icon: IconDashboard },
-  { id: 'sites',     label: 'Sites',   Icon: IconSites },
-  { id: 'expenses',  label: 'Expense', Icon: IconExpenses },
-  { id: 'payments',  label: 'Paid',    Icon: IconPayments },
-  { id: 'reports',   label: 'Reports', Icon: IconReports },
+  { id: 'dashboard',  label: 'Home',      Icon: IconDashboard },
+  { id: 'sites',      label: 'Sites',     Icon: IconSites },
+  { id: 'investors',  label: 'Investors', Icon: IconInvestors },
+  { id: 'expenses',   label: 'Expenses',  Icon: IconExpenses },
+  { id: 'payments',   label: 'Payments',  Icon: IconPayments },
+  { id: 'reports',    label: 'Reports',   Icon: IconReports },
+  { id: 'members',    label: 'Members',   Icon: IconPeople },
+];
+
+const MEMBER_TABS = [
+  { id: 'expenses', label: 'Expenses', Icon: IconExpenses },
 ];
 
 function BottomNav({ page, setPage, isMember = false }) {
-  const tabs = isMember
-    ? BOTTOM_TABS.filter(t => t.id === 'expenses')
-    : BOTTOM_TABS;
+  const tabs = isMember ? MEMBER_TABS : BOTTOM_TABS;
   return (
     <nav className="bottom-nav" style={{ display: 'flex', height: 62 }}>
       {tabs.map(tab => {
@@ -138,11 +142,12 @@ function BottomNav({ page, setPage, isMember = false }) {
               cursor: 'pointer',
               color: active ? 'var(--accent-blue)' : 'var(--ink-3)',
               transition: 'color 0.15s',
-              padding: '8px 4px',
+              padding: '8px 2px',
+              minWidth: 0,
             }}
           >
             <tab.Icon size={18} />
-            <span style={{ fontSize: 9, fontWeight: active ? 700 : 500, letterSpacing: '0.03em' }}>
+            <span style={{ fontSize: 8, fontWeight: active ? 700 : 500, letterSpacing: '0.02em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
               {tab.label}
             </span>
           </button>
@@ -191,6 +196,8 @@ export default function App() {
   const [showTweaks, setShowTweaks] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 1024);
+  // Triggers the add modal in the current page on mobile
+  const [mobileAddTick, setMobileAddTick] = useState(0);
 
   const qc = useQueryClient();
 
@@ -265,19 +272,20 @@ export default function App() {
             stats={stats}
             selectedIds={selectedIds}
             setSelectedIds={setSelectedIds}
+            mobileAddTick={mobileAddTick}
           />
         );
       case 'investors':
-        return <InvestorsPage stats={stats} sites={sites} />;
+        return <InvestorsPage stats={stats} sites={sites} mobileAddTick={mobileAddTick} />;
       case 'expenses':
-        return <ExpensesPage stats={stats} sites={sites} />;
+        return <ExpensesPage stats={stats} sites={sites} mobileAddTick={mobileAddTick} />;
       case 'payments':
-        return <PaymentsPage stats={stats} sites={sites} />;
+        return <PaymentsPage stats={stats} sites={sites} mobileAddTick={mobileAddTick} />;
       case 'reports':
         return <ReportsPage stats={stats} />;
       case 'members':
-        if (isMember) return null; // guard
-        return <MembersPage />;
+        if (isMember) return null;
+        return <MembersPage mobileAddTick={mobileAddTick} />;
       default:
         return null;
     }
@@ -322,6 +330,11 @@ export default function App() {
           onLogExpense={() => setShowModal(true)}
           onMenuClick={() => setDrawerOpen(true)}
           isMobile={isMobile}
+          isMember={isMember}
+          onAdd={(p) => {
+              if (p === 'expenses') setShowModal(true);
+              else setMobileAddTick(t => t + 1);
+            }}
         />
 
         {/* Page content */}

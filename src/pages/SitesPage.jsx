@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { fmtINR } from '../utils/format';
 import { IconEdit, IconTrash } from '../components/icons';
@@ -109,12 +109,17 @@ function SiteCard({ site, colorIdx, onEdit, onDelete }) {
   );
 }
 
-export default function SitesPage({ stats, selectedIds, setSelectedIds }) {
+export default function SitesPage({ stats, selectedIds, setSelectedIds, mobileAddTick = 0 }) {
   const { siteMetrics } = stats;
   const qc = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
   const [editSite, setEditSite] = useState(null);
   const [deleteSiteTarget, setDeleteSiteTarget] = useState(null);
+
+  // Open add modal when mobile topbar "+" is tapped
+  useEffect(() => {
+    if (mobileAddTick > 0) setShowAdd(true);
+  }, [mobileAddTick]);
 
   function toggle(id) {
     setSelectedIds(prev => {

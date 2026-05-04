@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import ExpenseTable from '../components/ExpenseTable';
 import AddExpenseModal from '../components/AddExpenseModal';

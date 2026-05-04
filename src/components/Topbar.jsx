@@ -5,12 +5,22 @@ import { IconSearch, IconBell, IconPlus, IconDownload, IconMenu } from './icons'
 const RANGES = ['7D', '30D', 'QTD', 'YTD', 'All'];
 
 const PAGE_LABELS = {
-  dashboard: 'Dashboard',
-  sites: 'Sites',
-  investors: 'Investors',
-  expenses: 'Expenses',
-  payments: 'Payments',
-  reports: 'Reports',
+  dashboard:  'Dashboard',
+  sites:      'Sites',
+  investors:  'Investors',
+  expenses:   'Expenses',
+  payments:   'Payments',
+  reports:    'Reports',
+  members:    'Members',
+};
+
+// Label for the mobile add button per page
+const ADD_LABELS = {
+  expenses:  'Add Expense',
+  sites:     'Add Site',
+  investors: 'Add Investor',
+  payments:  'Add Payment',
+  members:   'Add Member',
 };
 
 export default function Topbar({
@@ -20,11 +30,26 @@ export default function Topbar({
   setSelectedIds,
   range,
   setRange,
-  onLogExpense,
+  onLogExpense,   // opens add expense modal (used on all pages as fallback)
   onMenuClick,
   isMobile,
+  isMember = false,
+  onAdd,          // optional: page-specific add handler passed from App
 }) {
   const [searchVal, setSearchVal] = useState('');
+
+  // On mobile, the add button triggers the page's own add action.
+  // Each page has its own "+ Add X" button in its header — on mobile
+  // we mirror that in the topbar for quick access.
+  function handleMobileAdd() {
+    if (onAdd) {
+      onAdd(page);
+    } else {
+      onLogExpense();
+    }
+  }
+
+  const addLabel = ADD_LABELS[page] || 'Add';
 
   return (
     <header
@@ -33,48 +58,58 @@ export default function Topbar({
         borderBottom: '1px solid var(--line)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        padding: isMobile ? '0 16px' : '0 28px',
+        padding: isMobile ? '0 12px' : '0 28px',
         height: 64,
         display: 'flex',
         alignItems: 'center',
-        gap: 12,
+        gap: 10,
         flexShrink: 0,
         zIndex: 100,
         position: 'sticky',
         top: 0,
       }}
     >
-      {/* Mobile: hamburger + logo */}
+      {/* ── Mobile layout ── */}
       {isMobile ? (
         <>
+          {/* Hamburger */}
           <button
             onClick={onMenuClick}
-            style={{ background: 'transparent', border: 'none', color: 'var(--ink-2)', cursor: 'pointer', padding: 4, display: 'flex' }}
+            style={{ background: 'transparent', border: 'none', color: 'var(--ink-2)', cursor: 'pointer', padding: 4, display: 'flex', flexShrink: 0 }}
           >
             <IconMenu size={22} />
           </button>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: '0.05em' }}>SITE LEDGER</div>
+
+          {/* Page title */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: '0.05em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              SITE LEDGER
+            </div>
             <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>{PAGE_LABELS[page] || page}</div>
           </div>
-          {/* Log expense (compact) */}
-          <button
-            className="btn-primary"
-            onClick={onLogExpense}
-            style={{ padding: '7px 12px', fontSize: 12 }}
-          >
-            <IconPlus size={13} />
-            Log
-          </button>
+
+          {/* Context-aware add button — hidden on dashboard & reports */}
+          {page !== 'dashboard' && page !== 'reports' && (
+            <button
+              className="btn-primary"
+              onClick={handleMobileAdd}
+              style={{ padding: '7px 10px', fontSize: 11, gap: 4, flexShrink: 0 }}
+            >
+              <IconPlus size={12} />
+              {addLabel}
+            </button>
+          )}
+
           {/* Bell */}
-          <div style={{ position: 'relative' }}>
-            <button style={{ background: 'transparent', border: 'none', color: 'var(--ink-2)', cursor: 'pointer', padding: 4 }}>
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <button style={{ background: 'transparent', border: 'none', color: 'var(--ink-2)', cursor: 'pointer', padding: 4, display: 'flex' }}>
               <IconBell size={20} />
             </button>
             <div style={{ position: 'absolute', top: 4, right: 4, width: 7, height: 7, borderRadius: '50%', background: 'var(--accent-pink)', border: '1px solid var(--bg-2)' }} />
           </div>
         </>
       ) : (
+        /* ── Desktop layout ── */
         <>
           {/* Breadcrumb */}
           <div style={{ flexShrink: 0 }}>
