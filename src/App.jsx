@@ -15,6 +15,7 @@ import InvestorsPage from './pages/InvestorsPage';
 import ExpensesPage from './pages/ExpensesPage';
 import PaymentsPage from './pages/PaymentsPage';
 import ReportsPage from './pages/ReportsPage';
+import MembersPage from './pages/MembersPage';
 
 import { useStats } from './hooks/useStats';
 import { getSites, getInvestors, getExpenses, getPayments } from './api';
@@ -113,10 +114,13 @@ const BOTTOM_TABS = [
   { id: 'reports',   label: 'Reports', Icon: IconReports },
 ];
 
-function BottomNav({ page, setPage }) {
+function BottomNav({ page, setPage, isMember = false }) {
+  const tabs = isMember
+    ? BOTTOM_TABS.filter(t => t.id === 'expenses')
+    : BOTTOM_TABS;
   return (
     <nav className="bottom-nav" style={{ display: 'flex', height: 62 }}>
-      {BOTTOM_TABS.map(tab => {
+      {tabs.map(tab => {
         const active = page === tab.id;
         return (
           <button
@@ -150,16 +154,35 @@ function BottomNav({ page, setPage }) {
 
 // ── Auth gate ───────────────────────────────────────────
 function AuthGate() {
-  const [showSignup, setShowSignup] = useState(false);
-  if (showSignup) return <SignupPage onSwitch={() => setShowSignup(false)} />;
-  return <LoginPage onSwitch={() => setShowSignup(true)} />;
+  const [screen, setScreen] = useState('login'); // 'login' | 'signup'
+
+  if (screen === 'signup') {
+    return (
+      <SignupPage
+        onSwitchToLogin={() => setScreen('login')}
+      />
+    );
+  }
+
+  return (
+    <LoginPage
+      onSwitchToSignup={() => setScreen('signup')}
+    />
+  );
 }
 
 // ── Main App ────────────────────────────────────────────
 export default function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   if (!isAuthenticated) return <AuthGate />;
-  const [page, setPage] = useState(() => loadLS('sl_page', 'dashboard'));
+
+  const isMember = user?.role === 'member';
+
+  const [page, setPage] = useState(() => {
+    const saved = loadLS('sl_page', 'dashboard');
+    // Members always start on expenses
+    return isMember ? 'expenses' : saved;
+  });
   const [selectedIds, setSelectedIds] = useState(() => loadLS('sl_sites', []));
   const [range, setRange] = useState(() => loadLS('sl_range', '30D'));
   const [donutView, setDonutView] = useState(() => loadLS('sl_donut', 'pl'));
@@ -252,6 +275,9 @@ export default function App() {
         return <PaymentsPage stats={stats} sites={sites} />;
       case 'reports':
         return <ReportsPage stats={stats} />;
+      case 'members':
+        if (isMember) return null; // guard
+        return <MembersPage />;
       default:
         return null;
     }
@@ -310,7 +336,7 @@ export default function App() {
         </main>
 
         {/* Mobile bottom nav */}
-        {isMobile && <BottomNav page={page} setPage={setPage} />}
+        {isMobile && <BottomNav page={page} setPage={setPage} isMember={isMember} />}
       </div>
 
       {/* Tweaks FAB (desktop) */}

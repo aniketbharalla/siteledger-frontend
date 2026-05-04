@@ -9,24 +9,31 @@ export function AuthProvider({ children }) {
     try { return JSON.parse(localStorage.getItem('sl_user')) || null; } catch { return null; }
   });
 
+  function persist(t, u) {
+    localStorage.setItem('sl_token', t);
+    localStorage.setItem('sl_user', JSON.stringify(u));
+    setToken(t);
+    setUser(u);
+  }
+
   const login = useCallback(async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
-    const { token: t, user: u } = data;
-    localStorage.setItem('sl_token', t);
-    localStorage.setItem('sl_user', JSON.stringify(u));
-    setToken(t);
-    setUser(u);
-    return u;
+    persist(data.token, data.user);
+    return data.user;
   }, []);
 
-  const register = useCallback(async (name, email, password) => {
-    const { data } = await api.post('/auth/register', { name, email, password });
-    const { token: t, user: u } = data;
-    localStorage.setItem('sl_token', t);
-    localStorage.setItem('sl_user', JSON.stringify(u));
-    setToken(t);
-    setUser(u);
-    return u;
+  // Owner: creates a new organisation
+  const registerOrg = useCallback(async (orgName, name, email, password) => {
+    const { data } = await api.post('/auth/register/org', { orgName, name, email, password });
+    persist(data.token, data.user);
+    return data.user;
+  }, []);
+
+  // Admin: joins existing org with invite code
+  const registerAdmin = useCallback(async (inviteCode, name, email, password) => {
+    const { data } = await api.post('/auth/register/admin', { inviteCode, name, email, password });
+    persist(data.token, data.user);
+    return data.user;
   }, []);
 
   const logout = useCallback(() => {
@@ -37,7 +44,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, user, login, register, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{
+      token, user, login,
+      registerOrg, registerAdmin,
+      logout,
+      isAuthenticated: !!token,
+    }}>
       {children}
     </AuthContext.Provider>
   );

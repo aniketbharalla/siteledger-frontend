@@ -68,7 +68,10 @@ export const createPayment = (body) => api.post('/payments', body).then((r) => r
 export const updatePayment = (id, body) => api.put(`/payments/${id}`, body).then((r) => r.data.data);
 export const deletePayment = (id) => api.delete(`/payments/${id}`).then((r) => r.data);
 
-/* ── Stats (optional endpoint) ──────────────────────── */
+/* ── Members (owner/admin only) ─────────────────────────── */
+export const getMembers = () => api.get('/auth/members').then(r => r.data.data);
+export const addMember = (body) => api.post('/auth/members', body).then(r => r.data.member);
+export const deleteMember = (id) => api.delete(`/auth/members/${id}`).then(r => r.data);
 export const getStats = () =>
   api.get('/stats').then((r) => r.data).catch(() => null);
 

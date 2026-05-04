@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { fmtINR } from '../utils/format';
-import { IconExternalLink, IconEdit, IconTrash } from '../components/icons';
+import { IconEdit, IconTrash } from '../components/icons';
 import { deleteSite } from '../api';
 import AddSiteModal from '../components/AddSiteModal';
 import EditSiteModal from '../components/EditSiteModal';
@@ -16,7 +16,7 @@ const SITE_COLORS = [
   'linear-gradient(135deg,#FFB547 0%,#01B574 100%)',
 ];
 
-function SiteCard({ site, colorIdx, onToggle, isSelected, onEdit, onDelete }) {
+function SiteCard({ site, colorIdx, onEdit, onDelete }) {
   const burnColor = site.burnRate > 90 ? '#E31A1A' : site.burnRate > 70 ? '#FFB547' : '#01B574';
 
   return (
@@ -27,8 +27,7 @@ function SiteCard({ site, colorIdx, onToggle, isSelected, onEdit, onDelete }) {
         display: 'flex',
         flexDirection: 'column',
         gap: 16,
-        opacity: isSelected ? 1 : 0.55,
-        transition: 'opacity 0.2s, transform 0.15s',
+        transition: 'transform 0.15s',
         cursor: 'default',
       }}
       onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
@@ -88,10 +87,7 @@ function SiteCard({ site, colorIdx, onToggle, isSelected, onEdit, onDelete }) {
       </div>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button className="btn-ghost" style={{ flex: 1, justifyContent: 'center', padding: '8px' }} onClick={onToggle}>
-          {isSelected ? 'Exclude' : 'Include'}
-        </button>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
         <button
           className="btn-ghost"
           style={{ padding: '8px 10px', color: 'var(--accent-blue)' }}
@@ -107,10 +103,6 @@ function SiteCard({ site, colorIdx, onToggle, isSelected, onEdit, onDelete }) {
           title="Delete site"
         >
           <IconTrash size={14} />
-        </button>
-        <button className="btn-primary" style={{ flex: 1, justifyContent: 'center', padding: '8px' }}>
-          <IconExternalLink size={12} />
-          Open
         </button>
       </div>
     </div>
@@ -166,8 +158,6 @@ export default function SitesPage({ stats, selectedIds, setSelectedIds }) {
               key={site._id}
               site={site}
               colorIdx={i}
-              onToggle={() => toggle(site._id)}
-              isSelected={isSelected(site._id)}
               onEdit={() => setEditSite(site)}
               onDelete={() => setDeleteSiteTarget(site)}
             />
