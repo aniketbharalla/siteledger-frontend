@@ -105,7 +105,7 @@ export default function SiteSwitcher({ sites = [], selectedIds, setSelectedIds }
           style={{
             position: 'absolute',
             top: 'calc(100% + 8px)',
-            left: 0,
+            right: 0,
             zIndex: 300,
             minWidth: 300,
             padding: '8px 0',

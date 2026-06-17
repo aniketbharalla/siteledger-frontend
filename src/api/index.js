@@ -75,4 +75,33 @@ export const deleteMember = (id) => api.delete(`/auth/members/${id}`).then(r => 
 export const getStats = () =>
   api.get('/stats').then((r) => r.data).catch(() => null);
 
+/* ── BOQ ────────────────────────────────────────────── */
+export const getBOQs = (siteId) =>
+  api.get('/boq', { params: siteId ? { siteId } : {} }).then((r) => r.data.data);
+export const getBOQ = (id) => api.get(`/boq/${id}`).then((r) => r.data.data);
+export const createBOQ = (body) => api.post('/boq', body).then((r) => r.data.data);
+export const updateBOQ = (id, body) => api.put(`/boq/${id}`, body).then((r) => r.data.data);
+export const deleteBOQ = (id) => api.delete(`/boq/${id}`).then((r) => r.data);
+export const updateBOQItemCompletion = (boqId, itemId, completionPct) =>
+  api.patch(`/boq/${boqId}/item/${itemId}/completion`, { completionPct }).then((r) => r.data.data);
+
+/* ── Vendors ────────────────────────────────────────── */
+export const getVendors = () => api.get('/vendors').then((r) => r.data.data);
+export const createVendor = (body) => api.post('/vendors', body).then((r) => r.data.data);
+export const updateVendor = (id, body) => api.put(`/vendors/${id}`, body).then((r) => r.data.data);
+export const deleteVendor = (id) => api.delete(`/vendors/${id}`).then((r) => r.data);
+
+/* ── GST ────────────────────────────────────────────── */
+export const getGSTProfile = () => api.get('/gst/profile').then((r) => r.data.data);
+export const updateGSTProfile = (body) => api.put('/gst/profile', body).then((r) => r.data.data);
+export const getGSTDashboard = () => api.get('/gst/dashboard').then((r) => r.data.data);
+export const getITCExpenses = (params = {}) => api.get('/gst/itc', { params }).then((r) => r.data.data);
+export const claimITC = (expenseId) => api.post(`/gst/itc/${expenseId}/claim`).then((r) => r.data.data);
+export const unclaimITC = (expenseId) => api.post(`/gst/itc/${expenseId}/unclaim`).then((r) => r.data.data);
+export const getOutputGST = () => api.get('/gst/output').then((r) => r.data.data);
+export const getGSTReturns = () => api.get('/gst/returns').then((r) => r.data.data);
+export const markGSTReturn = (body) => api.post('/gst/returns', body).then((r) => r.data.data);
+export const getGSTAlerts = () => api.get('/gst/alerts').then((r) => r.data.data);
+export const getGSTSavings = () => api.get('/gst/savings').then((r) => r.data.data);
+
 export default api;

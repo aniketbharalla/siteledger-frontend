@@ -5,22 +5,26 @@ import { IconSearch, IconBell, IconPlus, IconDownload, IconMenu } from './icons'
 const RANGES = ['7D', '30D', 'QTD', 'YTD', 'All'];
 
 const PAGE_LABELS = {
-  dashboard:  'Dashboard',
-  sites:      'Sites',
-  investors:  'Investors',
-  expenses:   'Expenses',
-  payments:   'Payments',
-  reports:    'Reports',
-  members:    'Members',
+  dashboard: 'Dashboard',
+  sites:     'Sites',
+  investors: 'Investors',
+  expenses:  'Expenses',
+  payments:  'Payments',
+  reports:   'Reports',
+  members:   'Members',
+  boq:       'BOQ / Estimates',
+  vendors:   'Vendors',
+  gst:       'GST & Tax',
 };
 
-// Label for the mobile add button per page
 const ADD_LABELS = {
   expenses:  'Add Expense',
   sites:     'Add Site',
   investors: 'Add Investor',
   payments:  'Add Payment',
   members:   'Add Member',
+  boq:       'New BOQ',
+  vendors:   'Add Vendor',
 };
 
 export default function Topbar({
@@ -30,36 +34,29 @@ export default function Topbar({
   setSelectedIds,
   range,
   setRange,
-  onLogExpense,   // opens add expense modal (used on all pages as fallback)
+  onLogExpense,
   onMenuClick,
   isMobile,
   isMember = false,
-  onAdd,          // optional: page-specific add handler passed from App
+  onAdd,
 }) {
   const [searchVal, setSearchVal] = useState('');
 
-  // On mobile, the add button triggers the page's own add action.
-  // Each page has its own "+ Add X" button in its header — on mobile
-  // we mirror that in the topbar for quick access.
   function handleMobileAdd() {
-    if (onAdd) {
-      onAdd(page);
-    } else {
-      onLogExpense();
-    }
+    if (onAdd) onAdd(page);
+    else onLogExpense();
   }
 
   const addLabel = ADD_LABELS[page] || 'Add';
+  const pageLabel = PAGE_LABELS[page] || page;
 
   return (
     <header
       style={{
-        background: 'rgba(11,21,55,0.85)',
+        background: '#FFFFFF',
         borderBottom: '1px solid var(--line)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        padding: isMobile ? '0 12px' : '0 28px',
-        height: 64,
+        padding: isMobile ? '0 12px' : '0 24px',
+        height: 60,
         display: 'flex',
         alignItems: 'center',
         gap: 10,
@@ -67,56 +64,50 @@ export default function Topbar({
         zIndex: 100,
         position: 'sticky',
         top: 0,
+        boxShadow: '0 1px 0 rgba(0,0,0,0.06)',
       }}
     >
-      {/* ── Mobile layout ── */}
+      {/* ── Mobile ── */}
       {isMobile ? (
         <>
-          {/* Hamburger */}
           <button
             onClick={onMenuClick}
-            style={{ background: 'transparent', border: 'none', color: 'var(--ink-2)', cursor: 'pointer', padding: 4, display: 'flex', flexShrink: 0 }}
+            style={{ background: 'transparent', border: 'none', color: 'var(--ink-3)', cursor: 'pointer', padding: 4, display: 'flex', flexShrink: 0 }}
           >
-            <IconMenu size={22} />
+            <IconMenu size={20} />
           </button>
 
-          {/* Page title */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: '0.05em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              SITE LEDGER
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              SiteLedger
             </div>
-            <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>{PAGE_LABELS[page] || page}</div>
+            <div style={{ fontSize: 10, color: 'var(--ink-4)' }}>{pageLabel}</div>
           </div>
 
-          {/* Context-aware add button — hidden on dashboard & reports */}
-          {page !== 'dashboard' && page !== 'reports' && (
-            <button
-              className="btn-primary"
-              onClick={handleMobileAdd}
-              style={{ padding: '7px 10px', fontSize: 11, gap: 4, flexShrink: 0 }}
-            >
-              <IconPlus size={12} />
-              {addLabel}
-            </button>
+          {sites?.length > 0 && (
+            <SiteSwitcher
+              sites={sites}
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
+            />
           )}
 
-          {/* Bell */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <button style={{ background: 'transparent', border: 'none', color: 'var(--ink-2)', cursor: 'pointer', padding: 4, display: 'flex' }}>
-              <IconBell size={20} />
+            <button style={{ background: 'transparent', border: 'none', color: 'var(--ink-3)', cursor: 'pointer', padding: 4, display: 'flex' }}>
+              <IconBell size={18} />
             </button>
-            <div style={{ position: 'absolute', top: 4, right: 4, width: 7, height: 7, borderRadius: '50%', background: 'var(--accent-pink)', border: '1px solid var(--bg-2)' }} />
+            <div style={{ position: 'absolute', top: 5, right: 4, width: 6, height: 6, borderRadius: '50%', background: '#DC2626' }} />
           </div>
         </>
       ) : (
-        /* ── Desktop layout ── */
+        /* ── Desktop ── */
         <>
-          {/* Breadcrumb */}
+          {/* Page title + breadcrumb */}
           <div style={{ flexShrink: 0 }}>
-            <div style={{ fontSize: 11, color: 'var(--ink-3)', marginBottom: 1 }}>
-              Pages / <span style={{ color: 'var(--ink-2)' }}>{PAGE_LABELS[page]}</span>
+            <div style={{ fontSize: 11, color: 'var(--ink-4)', marginBottom: 1 }}>
+              Pages / <span style={{ color: 'var(--ink-3)' }}>{pageLabel}</span>
             </div>
-            <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1 }}>{PAGE_LABELS[page]}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)', lineHeight: 1 }}>{pageLabel}</div>
           </div>
 
           <div style={{ flex: 1 }} />
@@ -132,20 +123,20 @@ export default function Topbar({
 
           {/* Search */}
           <div style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}>
-              <IconSearch size={14} />
+            <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-4)' }}>
+              <IconSearch size={13} />
             </span>
             <input
               className="input-dark"
               placeholder="Search..."
               value={searchVal}
               onChange={e => setSearchVal(e.target.value)}
-              style={{ width: 180, paddingLeft: 32 }}
+              style={{ width: 170, paddingLeft: 30, fontSize: 12, padding: '7px 10px 7px 30px' }}
             />
           </div>
 
-          {/* Range buttons */}
-          <div style={{ display: 'flex', gap: 4 }}>
+          {/* Date range buttons */}
+          <div style={{ display: 'flex', gap: 3 }}>
             {RANGES.map(r => (
               <button
                 key={r}
@@ -158,23 +149,37 @@ export default function Topbar({
           </div>
 
           {/* Export */}
-          <button className="btn-ghost" style={{ padding: '8px 12px' }}>
-            <IconDownload size={14} />
+          <button className="btn-ghost" style={{ padding: '7px 12px', fontSize: 12 }}>
+            <IconDownload size={13} />
             Export
           </button>
 
-          {/* Log expense */}
-          <button className="btn-primary" onClick={onLogExpense}>
-            <IconPlus size={14} />
-            Log expense
-          </button>
+          {/* Primary action */}
+          {!isMember && (
+            <button className="btn-primary" onClick={onLogExpense} style={{ fontSize: 12 }}>
+              <IconPlus size={13} />
+              Log Expense
+            </button>
+          )}
 
           {/* Bell */}
           <div style={{ position: 'relative' }}>
-            <button style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--line)', borderRadius: 10, color: 'var(--ink-2)', cursor: 'pointer', padding: '8px 10px', display: 'flex' }}>
-              <IconBell size={18} />
+            <button style={{
+              background: 'var(--bg-0)',
+              border: '1px solid var(--line-2)',
+              borderRadius: 8,
+              color: 'var(--ink-3)',
+              cursor: 'pointer',
+              padding: '7px 9px',
+              display: 'flex',
+              transition: 'background 0.12s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-3)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-0)'}
+            >
+              <IconBell size={16} />
             </button>
-            <div style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-pink)', border: '1.5px solid var(--bg-2)' }} />
+            <div style={{ position: 'absolute', top: 5, right: 5, width: 7, height: 7, borderRadius: '50%', background: '#DC2626', border: '1.5px solid #fff' }} />
           </div>
         </>
       )}

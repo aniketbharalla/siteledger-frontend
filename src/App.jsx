@@ -16,6 +16,9 @@ import ExpensesPage from './pages/ExpensesPage';
 import PaymentsPage from './pages/PaymentsPage';
 import ReportsPage from './pages/ReportsPage';
 import MembersPage from './pages/MembersPage';
+import GSTPage from './pages/GSTPage';
+import BOQPage from './pages/BOQPage';
+import VendorsPage from './pages/VendorsPage';
 
 import { useStats } from './hooks/useStats';
 import { getSites, getInvestors, getExpenses, getPayments } from './api';
@@ -45,13 +48,14 @@ function LoadingState() {
         <div
           key={i}
           className="card"
-          style={{ height: 120, position: 'relative', overflow: 'hidden' }}
+          style={{ height: 120, position: 'relative', overflow: 'hidden', background: '#FFFFFF' }}
         >
           <div
             style={{
               position: 'absolute',
               inset: 0,
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%)',
+              background: 'linear-gradient(90deg, transparent 0%, rgba(124,58,237,0.04) 50%, transparent 100%)',
+              backgroundSize: '200% 100%',
               animation: 'shimmer 1.4s infinite',
             }}
           />
@@ -59,8 +63,8 @@ function LoadingState() {
       ))}
       <style>{`
         @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
         }
       `}</style>
     </div>
@@ -86,18 +90,18 @@ function ErrorState({ error, refetch }) {
           width: 52,
           height: 52,
           borderRadius: 14,
-          background: 'rgba(227,26,26,0.15)',
-          border: '1px solid rgba(227,26,26,0.3)',
+          background: 'rgba(220,38,38,0.1)',
+          border: '1px solid rgba(220,38,38,0.2)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: 24,
         }}
       >
-        ⚠
+        ⚠️
       </div>
       <div>
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Failed to load data</div>
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: 'var(--ink)' }}>Failed to load data</div>
         <div style={{ fontSize: 13, color: 'var(--ink-3)' }}>{error?.message || 'Unknown error'}</div>
       </div>
       <button className="btn-primary" onClick={refetch}>Retry</button>
@@ -140,7 +144,7 @@ function BottomNav({ page, setPage, isMember = false }) {
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              color: active ? 'var(--accent-blue)' : 'var(--ink-3)',
+              color: active ? '#7C3AED' : 'var(--ink-4)',
               transition: 'color 0.15s',
               padding: '8px 2px',
               minWidth: 0,
@@ -176,11 +180,9 @@ function AuthGate() {
   );
 }
 
-// ── Main App ────────────────────────────────────────────
-export default function App() {
-  const { isAuthenticated, user } = useAuth();
-  if (!isAuthenticated) return <AuthGate />;
-
+// ── Authenticated App ───────────────────────────────────
+function AuthenticatedApp() {
+  const { user } = useAuth();
   const isMember = user?.role === 'member';
 
   const [page, setPage] = useState(() => {
@@ -286,6 +288,12 @@ export default function App() {
       case 'members':
         if (isMember) return null;
         return <MembersPage mobileAddTick={mobileAddTick} />;
+      case 'gst':
+        return <GSTPage />;
+      case 'boq':
+        return <BOQPage mobileAddTick={mobileAddTick} />;
+      case 'vendors':
+        return <VendorsPage mobileAddTick={mobileAddTick} />;
       default:
         return null;
     }
@@ -399,4 +407,11 @@ export default function App() {
       )}
     </div>
   );
+}
+
+// ── Main App ────────────────────────────────────────────
+export default function App() {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) return <AuthGate />;
+  return <AuthenticatedApp />;
 }
